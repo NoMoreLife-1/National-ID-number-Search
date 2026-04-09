@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>National ID number Search</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #070b14;
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.68);
+        --border: rgba(255, 255, 255, 0.12);
+        --good: #22c55e;
+        --bad: #ef4444;
+        --warn: #f59e0b;
+        --accent: #7dd3fc;
+        --accent2: #a78bfa;
+        --shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+        --shadow2: 0 10px 30px rgba(0, 0, 0, 0.25);
+        --glass: rgba(255, 255, 255, 0.085);
+        --glass2: rgba(255, 255, 255, 0.055);
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f7f8ff;
+          --text: rgba(0, 0, 0, 0.86);
+          --muted: rgba(0, 0, 0, 0.62);
+          --border: rgba(0, 0, 0, 0.12);
+          --shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+          --shadow2: 0 10px 26px rgba(15, 23, 42, 0.1);
+          --glass: rgba(0, 0, 0, 0.035);
+          --glass2: rgba(0, 0, 0, 0.028);
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Kufi Arabic",
+          "Noto Sans Arabic", Arial, sans-serif;
+        background:
+          radial-gradient(1000px 700px at 78% -10%, rgba(125, 211, 252, 0.24), transparent 55%),
+          radial-gradient(900px 650px at 10% 10%, rgba(167, 139, 250, 0.2), transparent 55%),
+          radial-gradient(1100px 700px at 55% 120%, rgba(34, 197, 94, 0.12), transparent 58%),
+          conic-gradient(from 210deg at 85% 15%, rgba(125, 211, 252, 0.12), transparent 30%, rgba(167, 139, 250, 0.1), transparent 60%),
+          var(--bg);
+        color: var(--text);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.9;
+        background-image:
+          linear-gradient(to bottom right, rgba(255, 255, 255, 0.04), transparent 50%),
+          radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.055) 1px, transparent 1.8px);
+        background-size: 100% 100%, 18px 18px;
+        mix-blend-mode: overlay;
+      }
+
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 28px 16px 60px;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        font-size: 28px;
+        margin: 0;
+        letter-spacing: 0.15px;
+        line-height: 1.25;
+      }
+
+      .sub {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 14px;
+      }
+
+      @media (max-width: 860px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--glass), var(--glass2));
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: var(--shadow2);
+        backdrop-filter: blur(10px);
+      }
+
+      .card.hero {
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card.hero::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        background:
+          radial-gradient(600px 250px at 20% 20%, rgba(125, 211, 252, 0.16), transparent 55%),
+          radial-gradient(550px 260px at 80% 30%, rgba(167, 139, 250, 0.14), transparent 55%);
+        pointer-events: none;
+      }
+
+      .card > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .inputRow {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 13px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.1);
+        color: var(--text);
+        outline: none;
+        font-size: 16px;
+        letter-spacing: 1px;
+      }
+
+      @media (prefers-color-scheme: light) {
+        input[type="text"] {
+          background: rgba(255, 255, 255, 0.8);
+        }
+      }
+
+      input[type="text"]:focus {
+        border-color: rgba(96, 165, 250, 0.65);
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+      }
+
+      button {
+        border: 1px solid var(--border);
+        background: linear-gradient(135deg, rgba(125, 211, 252, 0.22), rgba(167, 139, 250, 0.16));
+        color: var(--text);
+        border-radius: 14px;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-weight: 700;
+        min-width: 110px;
+      }
+
+      button:hover {
+        background: linear-gradient(135deg, rgba(125, 211, 252, 0.28), rgba(167, 139, 250, 0.2));
+      }
+
+      .btnRow {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btnGhost {
+        background: rgba(255, 255, 255, 0.06);
+        min-width: 110px;
+      }
+
+      @media (prefers-color-scheme: light) {
+        .btnGhost {
+          background: rgba(0, 0, 0, 0.04);
+        }
+      }
+
+      .hint {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .status {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.08);
+      }
+
+      @media (prefers-color-scheme: light) {
+        .status {
+          background: rgba(255, 255, 255, 0.75);
+        }
+      }
+
+      .status.good {
+        border-color: rgba(34, 197, 94, 0.35);
+      }
+      .status.bad {
+        border-color: rgba(239, 68, 68, 0.35);
+      }
+      .status.warn {
+        border-color: rgba(245, 158, 11, 0.35);
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 520px) {
+        .kv {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .item {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px 12px;
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      @media (prefers-color-scheme: light) {
+        .item {
+          background: rgba(255, 255, 255, 0.7);
+        }
+      }
+
+      .k {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .v {
+        font-size: 16px;
+        font-weight: 700;
+        word-break: break-word;
+      }
+
+      .v.small {
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        letter-spacing: 0.6px;
+      }
+
+      footer {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.06);
+        font-size: 12px;
+        margin-inline-start: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>الرقم القومي</h1>
+        <p class="sub">Made By NoMoreLife Salih</p>
+      </header>
+
+      <div class="grid">
+        <section class="card hero" aria-label="إدخال الرقم القومي">
+          <label for="nid">الرقم القومي</label>
+          <div class="inputRow">
+            <input
+              id="nid"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="اكتب 14 رقم"
+              maxlength="20"
+              class="mono"
+            />
+            <button id="clearBtn" type="button">مسح</button>
+          </div>
+
+          <div id="status" class="status warn" role="status" aria-live="polite">
+            اكتب الرقم القومي .
+          </div>
+
+          <div class="btnRow">
+            <button id="copyBtn" class="btnGhost" type="button">نسخ النتائج</button>
+            <button id="copyNidBtn" class="btnGhost" type="button">نسخ الرقم</button>
+          </div>
+
+
+        </section>
+
+        <section class="card" aria-label="النتائج">
+          <div class="kv" id="results">
+            <div class="item">
+              <div class="k">النوع</div>
+              <div class="v" id="gender">—</div>
+            </div>
+            <div class="item">
+              <div class="k">تاريخ الميلاد</div>
+              <div class="v mono" id="dob">—</div>
+            </div>
+            <div class="item">
+              <div class="k">يوم الأسبوع</div>
+              <div class="v" id="weekday">—</div>
+            </div>
+            <div class="item">
+              <div class="k">المحافظة / المدينة</div>
+              <div class="v" id="gov">—</div>
+            </div>
+            <div class="item">
+              <div class="k">اليوم / الشهر / السنة</div>
+              <div class="v mono" id="dmy">—</div>
+            </div>
+            <div class="item">
+              <div class="k">العمر</div>
+              <div class="v" id="age">—</div>
+            </div>
+            <div class="item">
+              <div class="k">العمر (تفصيلي)</div>
+              <div class="v small" id="ageDetail">—</div>
+            </div>
+            <div class="item">
+              <div class="k">أقرب عيد ميلاد</div>
+              <div class="v small" id="nextBday">—</div>
+            </div>
+            <div class="item">
+              <div class="k">القرن</div>
+              <div class="v" id="century">—</div>
+            </div>
+            <div class="item">
+              <div class="k">كود المحافظة</div>
+              <div class="v mono" id="govCode">—</div>
+            </div>
+            <div class="item">
+              <div class="k">رقم التسجيل/التسلسل</div>
+              <div class="v mono" id="serial">—</div>
+            </div>
+            <div class="item">
+              <div class="k">رقم المراجعة (آخر رقم)</div>
+              <div class="v mono" id="checkDigit">—</div>
+            </div>
+            <div class="item">
+              <div class="k">الرقم (منسق)</div>
+              <div class="v mono small" id="formatted">—</div>
+            </div>
+          </div>
+
+          <footer>
+          </footer>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const govCodeToName = new Map([
+        ["01", "القاهرة"],
+        ["02", "الإسكندرية"],
+        ["03", "بورسعيد"],
+        ["04", "السويس"],
+        ["11", "دمياط"],
+        ["12", "الدقهلية"],
+        ["13", "الشرقية"],
+        ["14", "القليوبية"],
+        ["15", "كفر الشيخ"],
+        ["16", "الغربية"],
+        ["17", "المنوفية"],
+        ["18", "البحيرة"],
+        ["19", "الإسماعيلية"],
+        ["21", "الجيزة"],
+        ["22", "بني سويف"],
+        ["23", "الفيوم"],
+        ["24", "المنيا"],
+        ["25", "أسيوط"],
+        ["26", "سوهاج"],
+        ["27", "قنا"],
+        ["28", "أسوان"],
+        ["29", "الأقصر"],
+        ["31", "البحر الأحمر"],
+        ["32", "الوادي الجديد"],
+        ["33", "مطروح"],
+        ["34", "شمال سيناء"],
+        ["35", "جنوب سيناء"],
+        ["88", "خارج الجمهورية"],
+      ]);
+
+      const weekdayAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+
+      const nidInput = document.getElementById("nid");
+      const clearBtn = document.getElementById("clearBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const copyNidBtn = document.getElementById("copyNidBtn");
+      const statusEl = document.getElementById("status");
+
+      const genderEl = document.getElementById("gender");
+      const dobEl = document.getElementById("dob");
+      const weekdayEl = document.getElementById("weekday");
+      const govEl = document.getElementById("gov");
+      const dmyEl = document.getElementById("dmy");
+      const ageEl = document.getElementById("age");
+      const ageDetailEl = document.getElementById("ageDetail");
+      const nextBdayEl = document.getElementById("nextBday");
+      const centuryEl = document.getElementById("century");
+      const govCodeEl = document.getElementById("govCode");
+      const serialEl = document.getElementById("serial");
+      const checkDigitEl = document.getElementById("checkDigit");
+      const formattedEl = document.getElementById("formatted");
+
+      function setStatus(kind, text) {
+        statusEl.classList.remove("good", "bad", "warn");
+        statusEl.classList.add(kind);
+        statusEl.textContent = text;
+      }
+
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+
+      function isValidDateParts(y, m, d) {
+        if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return false;
+        if (y < 1900 || y > 2099) return false;
+        if (m < 1 || m > 12) return false;
+        if (d < 1 || d > 31) return false;
+        const dt = new Date(y, m - 1, d);
+        return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+      }
+
+      function calculateAge(birthDate, now = new Date()) {
+        let years = now.getFullYear() - birthDate.getFullYear();
+        const m = now.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) years -= 1;
+        return years;
+      }
+
+      function calculateAgeDetailed(birthDate, now = new Date()) {
+        if (birthDate.getTime() > now.getTime()) return null;
+
+        let years = now.getFullYear() - birthDate.getFullYear();
+        let months = now.getMonth() - birthDate.getMonth();
+        let days = now.getDate() - birthDate.getDate();
+
+        if (days < 0) {
+          const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+          days += prevMonth.getDate();
+          months -= 1;
+        }
+
+        if (months < 0) {
+          months += 12;
+          years -= 1;
+        }
+
+        return { years, months, days };
+      }
+
+      function getNextBirthdayInfo(birthDate, now = new Date()) {
+        const thisYear = now.getFullYear();
+        const m = birthDate.getMonth();
+        const d = birthDate.getDate();
+
+        let next = new Date(thisYear, m, d);
+        if (next.getTime() < new Date(thisYear, now.getMonth(), now.getDate()).getTime()) {
+          next = new Date(thisYear + 1, m, d);
+        }
+
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const diffMs = next.getTime() - start.getTime();
+        const daysLeft = Math.round(diffMs / (24 * 60 * 60 * 1000));
+        return { next, daysLeft };
+      }
+
+      function formatNid(nid) {
+        return `${nid.slice(0, 1)} ${nid.slice(1, 7)} ${nid.slice(7, 9)} ${nid.slice(9, 13)} ${nid.slice(13)}`;
+      }
+
+      function resetOutputs() {
+        genderEl.textContent = "—";
+        dobEl.textContent = "—";
+        weekdayEl.textContent = "—";
+        govEl.textContent = "—";
+        dmyEl.textContent = "—";
+        ageEl.textContent = "—";
+        ageDetailEl.textContent = "—";
+        nextBdayEl.textContent = "—";
+        centuryEl.textContent = "—";
+        govCodeEl.textContent = "—";
+        serialEl.textContent = "—";
+        checkDigitEl.textContent = "—";
+        formattedEl.textContent = "—";
+      }
+
+      function parseNationalId(raw) {
+        const normalized = raw.replace(/\s+/g, "");
+        if (!/^\d{14}$/.test(normalized)) {
+          return { ok: false, error: "لازم الرقم القومي يكون 14 رقم (بدون حروف)." };
+        }
+
+        const centuryDigit = normalized[0];
+        const yy = Number(normalized.slice(1, 3));
+        const mm = Number(normalized.slice(3, 5));
+        const dd = Number(normalized.slice(5, 7));
+        const govCode = normalized.slice(7, 9);
+        const serial = normalized.slice(9, 13);
+        const checkDigit = normalized.slice(13, 14);
+        const genderDigit = Number(normalized[12]); 
+
+        let year;
+        let centuryText;
+        if (centuryDigit === "2") {
+          year = 1900 + yy;
+          centuryText = "القرن العشرين (1900–1999)";
+        } else if (centuryDigit === "3") {
+          year = 2000 + yy;
+          centuryText = "القرن الحادي والعشرين (2000–2099)";
+        }
+        else return { ok: false, error: "أول رقم لازم يكون 2 (1900s) أو 3 (2000s)." };
+
+        if (!isValidDateParts(year, mm, dd)) {
+          return { ok: false, error: "تاريخ الميلاد داخل الرقم القومي غير صحيح." };
+        }
+
+        const govName = govCodeToName.get(govCode) ?? null;
+        if (!govName) {
+          return { ok: false, error: "كود المحافظة داخل الرقم القومي غير معروف/غير مدعوم." };
+        }
+
+        const birthDate = new Date(year, mm - 1, dd);
+        const now = new Date();
+        if (birthDate.getTime() > now.getTime()) {
+          return { ok: false, error: "تاريخ الميلاد لا يمكن أن يكون في المستقبل." };
+        }
+
+        const gender = Number.isFinite(genderDigit) && genderDigit % 2 === 0 ? "أنثى" : "ذكر";
+        const age = calculateAge(birthDate, now);
+        const ageDetail = calculateAgeDetailed(birthDate, now);
+        const nextBday = getNextBirthdayInfo(birthDate, now);
+        const weekday = weekdayAr[birthDate.getDay()];
+
+        return {
+          ok: true,
+          normalized,
+          year,
+          month: mm,
+          day: dd,
+          dobText: `${pad2(dd)}/${pad2(mm)}/${year}`,
+          weekday,
+          govCode,
+          govName,
+          gender,
+          age,
+          ageDetail,
+          nextBday,
+          serial,
+          checkDigit,
+          centuryText,
+          formatted: formatNid(normalized),
+        };
+      }
+
+      function render() {
+        const value = nidInput.value;
+        if (!value.trim()) {
+          resetOutputs();
+          setStatus("warn", "اكتب الرقم القومي");
+          return;
+        }
+
+        const parsed = parseNationalId(value);
+        if (!parsed.ok) {
+          resetOutputs();
+          setStatus("bad", parsed.error);
+          return;
+        }
+
+        genderEl.textContent = parsed.gender;
+        dobEl.textContent = parsed.dobText;
+        weekdayEl.textContent = parsed.weekday;
+        govEl.textContent = `${parsed.govName} (${parsed.govCode})`;
+        dmyEl.textContent = `${pad2(parsed.day)} / ${pad2(parsed.month)} / ${parsed.year}`;
+        ageEl.textContent = `${parsed.age} سنة`;
+        if (parsed.ageDetail) {
+          ageDetailEl.textContent = `${parsed.ageDetail.years} سنة، ${parsed.ageDetail.months} شهر، ${parsed.ageDetail.days} يوم`;
+        } else {
+          ageDetailEl.textContent = "—";
+        }
+        const nb = parsed.nextBday;
+        const nbDay = pad2(nb.next.getDate());
+        const nbMonth = pad2(nb.next.getMonth() + 1);
+        const nbYear = nb.next.getFullYear();
+        nextBdayEl.textContent = `${nbDay}/${nbMonth}/${nbYear} (بعد ${nb.daysLeft} يوم)`;
+        centuryEl.textContent = parsed.centuryText;
+        govCodeEl.textContent = parsed.govCode;
+        serialEl.textContent = parsed.serial;
+        checkDigitEl.textContent = parsed.checkDigit;
+        formattedEl.textContent = parsed.formatted;
+
+        setStatus("good", "تم استخراج البيانات بنجاح.");
+      }
+
+      nidInput.addEventListener("input", () => {
+        const digitsOnly = nidInput.value.replace(/[^\d\s]/g, "");
+        if (digitsOnly !== nidInput.value) nidInput.value = digitsOnly;
+        render();
+      });
+
+      clearBtn.addEventListener("click", () => {
+        nidInput.value = "";
+        nidInput.focus();
+        render();
+      });
+
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus("good", "تم النسخ للحافظة.");
+        } catch {
+          setStatus("warn", "لم يتم النسخ تلقائيًا. انسخ يدويًا من النتائج.");
+        }
+      }
+
+      copyNidBtn.addEventListener("click", async () => {
+        const normalized = nidInput.value.replace(/\s+/g, "");
+        if (!/^\d{14}$/.test(normalized)) {
+          setStatus("warn", "اكتب رقم قومي صحيح (14 رقم) ثم انسخ.");
+          return;
+        }
+        await copyText(normalized);
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        const parsed = parseNationalId(nidInput.value);
+        if (!parsed.ok) {
+          setStatus("warn", "اكتب رقم قومي صحيح (14 رقم) ثم انسخ النتائج.");
+          return;
+        }
+        const lines = [
+          `الرقم القومي: ${parsed.normalized}`,
+          `النوع: ${parsed.gender}`,
+          `تاريخ الميلاد: ${parsed.dobText}`,
+          `يوم الأسبوع: ${parsed.weekday}`,
+          `المحافظة: ${parsed.govName} (${parsed.govCode})`,
+          `العمر: ${parsed.age} سنة`,
+          parsed.ageDetail
+            ? `العمر (تفصيلي): ${parsed.ageDetail.years} سنة، ${parsed.ageDetail.months} شهر، ${parsed.ageDetail.days} يوم`
+            : `العمر (تفصيلي): —`,
+          `القرن: ${parsed.centuryText}`,
+          `رقم التسجيل/التسلسل: ${parsed.serial}`,
+          `رقم المراجعة (آخر رقم): ${parsed.checkDigit}`,
+          `الرقم (منسق): ${parsed.formatted}`,
+        ];
+        await copyText(lines.join("\n"));
+      });
+
+      render();
+    </script>
+  </body>
+</html>
